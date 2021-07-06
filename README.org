@@ -1,0 +1,16 @@
+* Second Mate
+An open-source, mini imitation of [[https://copilot.github.com/][GitHub Copilot]] using [[https://huggingface.co/EleutherAI/gpt-neo-2.7B][EleutherAI GPT-Neo-2.7B]] (via Huggingface Model Hub) for Emacs.
+
+This is a much smaller model so will likely not be as effective as Copilot, but can still be interesting to play around with!
+
+[[./assets/demo1.gif]]
+
+* Setup
+** Inference End / Backend
+1. Set =device= to "cpu" or "cuda" in =serve/server.py=
+2. The "priming" is currently done in Python. If you want, modify it to another language or turn it off (priming subjectively seems to help).
+3. Launch =serve/server.py=. This will launch a Flask app which will allow us to sample the model via REST API.
+
+** Emacs
+1. In =emacs/secondmate.py=, set the URL to "localhost" or the address the API is running on.
+2. Configure Python and script path in =emacs/secondmate.el=. /NOTE: The local Python script is a temporary patch which will be replaced by a GET request in Elisp directly./
