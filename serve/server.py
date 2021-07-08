@@ -46,7 +46,7 @@ def inference(prompt, temperature, max_length):
 
 
 def autocomplete(plaintext, to_prime=True, temperature=0.8, max_length=300):
-    prompt = prime + plaintext if to_prime else prompt
+    prompt = prime + plaintext if to_prime else plaintext
     generation = inference(prompt, temperature, max_length)
     return generation[len(prompt) :].split("###")[0]
 
