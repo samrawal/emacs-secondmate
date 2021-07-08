@@ -20,5 +20,11 @@
   (insert (shell-command-to-string fullcommand))
 )
 
+(defun secondmate-redo ()
+  (interactive)
+  (undo)
+  (secondmate)
+)
 
 (global-set-key (kbd "C-c c") 'secondmate)
+(global-set-key (kbd "C-c v") 'secondmate-redo)
