@@ -1,30 +1,47 @@
-; The only reason this is being passed through Python because
-; I haven't been able to get HTTP APIs working in elisp. 
+(require 'json)
+(require 'url)
+(require 'url-parse)
 
-(set 'pypath "/usr/local/bin/python3")
-(set 'scriptpath "/PATH/TO/secondmate.py")
+(defgroup secondmate nil
+  "Perform GPT-powered code completion"
+  :group 'editing)
+
+(defcustom secondmate-url "http://localhost:9900/"
+  "URL the Python server is running at."
+  :type 'string
+  :group 'secondmate)
+
+(defun secondmate--url (context)
+  (let ((url (url-generic-parse-url secondmate-url))
+        (params (url-build-query-string `(("text" ,context)))))
+    (setf (url-filename url) (format "/?%s" params))
+    url))
 
 (defun secondmate ()
   (interactive)
-  ; grab context (TODO: what is best way to do it -- backward-paragraph or previous-line?)
-  (set 'endcontext (point))
-  (previous-line (min 3 (- (line-number-at-pos) 1)))
-  (beginning-of-line)
-  (set 'startcontext (point))
-  (copy-region-as-kill startcontext endcontext)
-
-  (set 'codesample (concat "\'" (car kill-ring) " \'"))
-  (set 'fullcommand (concat pypath " " scriptpath " " codesample))
-  (goto-char endcontext)
-
-  (insert (shell-command-to-string fullcommand))
-)
+  ;; TODO: what is best way to do it -- backward-paragraph or
+  ;; previous-line?
+  (let* ((context-beg (save-excursion
+                        (previous-line (min 3 (- (line-number-at-pos) 1)))
+                        (beginning-of-line)
+                        (point)))
+         (context-end (point))
+         (context (buffer-substring-no-properties context-beg context-end))
+         (url (secondmate--url context))
+         (url-buf (url-retrieve-synchronously url))
+         (old-buf (current-buffer)))
+    (unwind-protect
+      (with-current-buffer url-buf
+        (goto-char url-http-end-of-headers)
+        (let ((generation (cdr (assoc 'generation (json-read)))))
+          (with-current-buffer old-buf
+            (insert generation))))
+      (kill-buffer url-buf))))
 
 (defun secondmate-redo ()
   (interactive)
   (undo)
-  (secondmate)
-)
+  (secondmate))
 
 (global-set-key (kbd "C-c c") 'secondmate)
 (global-set-key (kbd "C-c v") 'secondmate-redo)
