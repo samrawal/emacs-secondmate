@@ -8,7 +8,7 @@ This is a much smaller model so will likely not be as effective as Copilot, but 
 * Setup
 ** Inference End / Backend
 1. Set =device= to "cpu" or "cuda" in =serve/server.py=
-2. The "priming" is currently done in Python. If you want, modify it to another language or turn it off (priming subjectively seems to help).
+2. The "priming" is currently done in Python. If you want, modify it to another language or turn it off (from subjective experience, priming seems to help).
 3. Launch =serve/server.py=. This will launch a Flask app which will allow us to sample the model via REST API.
 
 ** Emacs
