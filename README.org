@@ -12,5 +12,4 @@ This is a much smaller model so will likely not be as effective as Copilot, but 
 3. Launch =serve/server.py=. This will launch a Flask app which will allow us to sample the model via REST API.
 
 ** Emacs
-1. In =emacs/secondmate.py=, set the URL to "localhost" or the address the API is running on.
-2. Configure Python and script path in =emacs/secondmate.el=. /NOTE: The local Python script is a temporary patch which will be replaced by a GET request in Elisp directly./
+1. In =emacs/secondmate.el=, customize the URL in =secondmate-url= to the address the API is running on.
