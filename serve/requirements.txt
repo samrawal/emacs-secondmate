@@ -1,0 +1,4 @@
+# first install PyTorch with desired CPU or GPU support: https://pytorch.org/get-started/locally/
+transformers==4.8.2
+Flask==2.0.1
+
