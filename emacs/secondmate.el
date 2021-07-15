@@ -36,7 +36,8 @@
         (let ((generation (cdr (assoc 'generation (json-read)))))
           (with-current-buffer old-buf
             (insert generation))))
-      (kill-buffer url-buf))))
+      (kill-buffer url-buf)))
+  (message "Inserted completion."))
 
 (defun secondmate-redo ()
   (interactive)
