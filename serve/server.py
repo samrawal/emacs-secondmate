@@ -5,9 +5,9 @@ app = Flask(__name__)
 
 
 device = "cuda"  # "cpu" or "cuda" or "cuda:n" where n is specific GPU to use
-modelname = "EleutherAI/gpt-neo-2.7B"
-tokenizer = AutoTokenizer.from_pretrained(modelname)
-model = AutoModelForCausalLM.from_pretrained(modelname)
+modelname = "replit/replit-code-v1-3b" #"EleutherAI/gpt-neo-2.7B"
+tokenizer = AutoTokenizer.from_pretrained(modelname, trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained(modelname, trust_remote_code=True)
 model.to(device)
 
 
@@ -47,6 +47,8 @@ def inference(prompt, temperature, max_length):
 
 def autocomplete(plaintext, to_prime=True, temperature=0.8, max_length=300):
     prompt = prime + plaintext if to_prime else plaintext
+    if modelname == "replit/replit-code-v1-3b":
+        temperature = 0.2 # default config from Replit's HuggingFace repo
     generation = inference(prompt, temperature, max_length)
     return generation[len(prompt) :].split("###")[0]
 
