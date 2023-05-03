@@ -1,8 +1,6 @@
 * Second Mate
 An open-source, mini imitation of [[https://copilot.github.com/][GitHub Copilot]] using *update:* [[https://huggingface.co/replit/replit-code-v1-3b][Replit Code 3B]] or  [[https://huggingface.co/EleutherAI/gpt-neo-2.7B][EleutherAI GPT-Neo-2.7B]] (via Huggingface Model Hub) for Emacs.
 
-This is a much smaller model so will likely not be as effective as Copilot, but can still be interesting to play around with!
-
 [[./assets/demo1.gif]]
 
 * Setup
