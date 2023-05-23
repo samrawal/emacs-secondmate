@@ -14,7 +14,7 @@
 (defun secondmate--url (context)
   (let ((url (url-generic-parse-url secondmate-url))
         (params (url-build-query-string `(("text" ,context)))))
-    (setf (url-filename url) (format "/?%s" params))
+    (setf (url-filename url) (format "%s/?%s" (url-filename url) params))
     url))
 
 (defun secondmate ()
