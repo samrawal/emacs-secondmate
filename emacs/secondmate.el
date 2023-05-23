@@ -22,7 +22,7 @@
   ;; TODO: what is best way to do it -- backward-paragraph or
   ;; previous-line?
   (let* ((context-beg (save-excursion
-                        (previous-line (min 3 (- (line-number-at-pos) 1)))
+                        (forward-line (- (min 20 (- (line-number-at-pos) 1))))
                         (beginning-of-line)
                         (point)))
          (context-end (point))
@@ -44,7 +44,7 @@
   (undo)
   (secondmate))
 
-(global-set-key (kbd "C-c c") 'secondmate)
-(global-set-key (kbd "C-c v") 'secondmate-redo)
+(global-set-key (kbd "C-c M-/") 'secondmate)
+(global-set-key (kbd "C-c M-\\") 'secondmate-redo)
 
 (provide 'secondmate)
