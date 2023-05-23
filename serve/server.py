@@ -3,8 +3,11 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-
-device = "cuda"  # "cpu" or "cuda" or "cuda:n" where n is specific GPU to use
+try:
+    import torch_directml
+    device = torch_directml.device()
+except ImportError:
+    device = "cpu"  # "cpu" or "cuda" or "cuda:n" where n is specific GPU to use
 modelname = "replit/replit-code-v1-3b" #"EleutherAI/gpt-neo-2.7B"
 tokenizer = AutoTokenizer.from_pretrained(modelname, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(modelname, trust_remote_code=True)
