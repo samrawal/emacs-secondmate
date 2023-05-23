@@ -6,7 +6,7 @@
   "Perform GPT-powered code completion"
   :group 'editing)
 
-(defcustom secondmate-url "http://localhost:9900/"
+(defcustom secondmate-url "http://127.0.0.1:9900/"
   "URL the Python server is running at."
   :type 'string
   :group 'secondmate)
