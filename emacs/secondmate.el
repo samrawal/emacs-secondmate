@@ -46,3 +46,5 @@
 
 (global-set-key (kbd "C-c c") 'secondmate)
 (global-set-key (kbd "C-c v") 'secondmate-redo)
+
+(provide 'secondmate)
