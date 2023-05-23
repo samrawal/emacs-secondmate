@@ -21,11 +21,12 @@
   (interactive)
   ;; TODO: what is best way to do it -- backward-paragraph or
   ;; previous-line?
-  (let* ((context-beg (save-excursion
-                        (forward-line (- (min 20 (- (line-number-at-pos) 1))))
-                        (beginning-of-line)
-                        (point)))
-         (context-end (point))
+  (let* ((context-beg (or (use-region-beginning)
+                          (save-excursion
+                            (forward-line (- (min 20 (- (line-number-at-pos) 1))))
+                            (beginning-of-line)
+                            (point))))
+         (context-end (or (use-region-end) (point)))
          (context (buffer-substring-no-properties context-beg context-end))
          (url (secondmate--url context))
          (url-buf (url-retrieve-synchronously url))

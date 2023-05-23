@@ -1,4 +1,8 @@
 # first install PyTorch with desired CPU or GPU support: https://pytorch.org/get-started/locally/
-transformers==4.8.2
+tokenizers
+huggingface-hub
+transformers==4.25.1
 Flask==2.0.1
-
+sentencepiece
+einops
+flash_attn
