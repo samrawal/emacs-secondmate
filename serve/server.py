@@ -86,7 +86,7 @@ def main(arguments=None):
     TOKENIZER = AutoTokenizer.from_pretrained(MODELNAME, trust_remote_code=True)
     MODEL = AutoModelForCausalLM.from_pretrained(MODELNAME, trust_remote_code=True)
     MODEL.to(DEVICE)
-    app.run(host="0.0.0.0", port=9900)
+    app.run(host="0.0.0.0", port=arguments.port if arguments else 9900)
 
 
 if __name__ == "__main__":
@@ -108,6 +108,12 @@ if __name__ == "__main__":
         "--device",
         help="cpu|cuda|directml|cuda:{n} (where n is the GPU to use)",
         default=DEVICE,
+        required=False,
+    )
+    parser.add_argument(
+        "--port",
+        help="port to run on",
+        default=9900,
         required=False,
     )
     args = parser.parse_args(sys.argv[1:])
