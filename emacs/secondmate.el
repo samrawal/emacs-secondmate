@@ -11,6 +11,7 @@
   :type 'string
   :group 'secondmate)
 
+
 (defun secondmate--url (context)
   (let ((url (url-generic-parse-url secondmate-url))
         (params (url-build-query-string `(("text" ,context)))))
@@ -31,13 +32,14 @@
          (url (secondmate--url context))
          (url-buf (url-retrieve-synchronously url))
          (old-buf (current-buffer)))
-    (unwind-protect
-      (with-current-buffer url-buf
-        (goto-char url-http-end-of-headers)
-        (let ((generation (cdr (assoc 'generation (json-read)))))
-          (with-current-buffer old-buf
-            (insert generation))))
-      (kill-buffer url-buf)))
+    (if url-buf
+        (unwind-protect
+            (with-current-buffer url-buf
+              (goto-char url-http-end-of-headers)
+              (let ((generation (cdr (assoc 'generation (json-read)))))
+                (with-current-buffer old-buf
+                  (insert generation))))
+          (kill-buffer url-buf))))
   (message "Inserted completion."))
 
 (defun secondmate-redo ()
