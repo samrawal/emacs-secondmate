@@ -1,19 +1,14 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from flask import Flask, request, jsonify
 
-app = Flask(__name__)
 
-
-device = "cuda"  # "cpu" or "cuda" or "cuda:n" where n is specific GPU to use
-modelname = "replit/replit-code-v1-3b" #"EleutherAI/gpt-neo-2.7B"
-tokenizer = AutoTokenizer.from_pretrained(modelname, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(modelname, trust_remote_code=True)
-model.to(device)
+DEVICE = "cpu"
+MODELNAME = "replit/replit-code-v1-3b" # "Salesforce/codegen-16B-mono", "EleutherAI/gpt-neo-2.7B"
 
 
 # Prepend to input to provide more context. Anecdotally, this helps.
 # May not need for larger models.
-prime = '''
+PRIME = '''
 def is_palendrome(s):
     """Check whether a string is a palindrome"""
     for i in range(len(s) - 1, -1, -1):
@@ -32,23 +27,39 @@ def square_root(i):
 '''
 
 
+app = Flask(__name__)
+
+
 def inference(prompt, temperature, max_length):
-    input_ids = tokenizer(prompt, return_tensors="pt").input_ids
-    input_ids = input_ids.to(device)
-    gen_tokens = model.generate(
-        input_ids,
-        do_sample=True,
-        temperature=temperature,
-        max_length=max_length,
-    )
-    gen_text = tokenizer.batch_decode(gen_tokens)[0]
+    if "Salesforce/codegen" in MODELNAME:
+        inputs = TOKENIZER(prompt, return_tensors="pt").to(DEVICE)
+        sample = MODEL.generate(**inputs, max_length=max_length)
+        gen_text = "\n".join(
+            [
+                TOKENIZER.decode(sample[0]),
+                "###",
+            ]
+        )
+    else:
+        input_ids = TOKENIZER(prompt, return_tensors="pt").input_ids
+        input_ids = input_ids.to(DEVICE)
+        gen_tokens = MODEL.generate(
+            input_ids,
+            do_sample=True,
+            temperature=temperature,
+            max_length=max_length,
+        )
+        gen_text = TOKENIZER.batch_decode(gen_tokens)[0]
+    print(repr(gen_text))
     return gen_text
 
 
-def autocomplete(plaintext, to_prime=True, temperature=0.8, max_length=300):
-    prompt = prime + plaintext if to_prime else plaintext
-    if modelname == "replit/replit-code-v1-3b":
+def autocomplete(plaintext, to_prime=None, temperature=0.8, max_length=300):
+    if to_prime is None:
+        to_prime = all(x not in MODELNAME for x in ("Salesforce", "replit"))
+    if MODELNAME == "replit/replit-code-v1-3b":
         temperature = 0.2 # default config from Replit's HuggingFace repo
+    prompt = PRIME + plaintext if to_prime else plaintext
     generation = inference(prompt, temperature, max_length)
     return generation[len(prompt) :].split("###")[0]
 
@@ -61,5 +72,49 @@ def arguments():
     return jsonify(out)
 
 
+def main(arguments=None):
+    global DEVICE, MODELNAME, TOKENIZER, MODEL
+    if arguments:
+        if arguments.device == "directml":
+            import torch_directml  # pyright: ignore
+
+            DEVICE = torch_directml.device()
+        else:
+            DEVICE = arguments.device
+        if arguments.model:
+            MODELNAME = arguments.model
+    TOKENIZER = AutoTokenizer.from_pretrained(MODELNAME, trust_remote_code=True)
+    MODEL = AutoModelForCausalLM.from_pretrained(MODELNAME, trust_remote_code=True)
+    MODEL.to(DEVICE)
+    app.run(host="0.0.0.0", port=arguments.port if arguments else 9900)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="9900")
+    import sys
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--model",
+        help="""Base model to use. We have support code currently for:
+        EleutherAI/gpt-neo-2.7B
+        replit/replit-code-v1-3b
+        Salesforce/codegen-{350M,2B,6B,16B}-{nl,multi,mono}
+        """,
+        default=MODELNAME,
+        required=False,
+    )
+    parser.add_argument(
+        "--device",
+        help="cpu|cuda|directml|cuda:{n} (where n is the GPU to use)",
+        default=DEVICE,
+        required=False,
+    )
+    parser.add_argument(
+        "--port",
+        help="port to run on",
+        default=9900,
+        required=False,
+    )
+    args = parser.parse_args(sys.argv[1:])
+    main(args)
